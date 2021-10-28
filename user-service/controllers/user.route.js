@@ -11,8 +11,6 @@ const moment = require('moment');
 const userModel = require('../models/user.model');
 const sendMail = require('../public/js/sendEmail.js');
 
-const {HTTP} = require('http-call');
-
 const generateOTP = () => {
     const digits = '0123456789';
     let OTP = '';

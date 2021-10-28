@@ -54,14 +54,10 @@ app.use(express.urlencoded({ //Cho phép controller nhận dữ liệu do form g
     extended: true
 }));
 
+require('./locals.mdw')(app);
+require('./routes.mdw')(app);
 
-require('./middlewares/view.mdw')(app);
-require('./middlewares/locals.mdw')(app);
-require('./middlewares/routes.mdw')(app);
-
-
-
-const PORT = 6060;
+const PORT = 5000;
 app.listen(PORT, function() {
-    console.log(`Online Newspaper Web App Front End listening at http://localhost:${PORT}`);
+    console.log(`Online Newspaper Web App User Service listening at http://localhost:${PORT}`);
 });

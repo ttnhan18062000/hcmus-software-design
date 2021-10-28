@@ -3,9 +3,6 @@ const morgan = require('morgan');
 const path = require('path');
 const flash = require('express-flash');
 const session = require('express-session');
-const passport = require('passport');
-const initializeFacebookPassport = require('./public/js/config/auth.facebook.js');
-const initializePassport = require('./public/js/config/passport.config');
 const cookieParser = require('cookie-parser');
 
 
@@ -14,7 +11,6 @@ const cookieParser = require('cookie-parser');
 
 const app = express();
 //app.use(cookieParser());
-initializePassport(passport);
 app.use(flash());
 app.use(session({
     name: 'sid',
@@ -27,8 +23,6 @@ app.use(session({
     }
 }));
 
-app.use(passport.initialize());
-app.use(passport.session());
 // app.use((req, res, next) => {
 //     console.log(req.session);
 //     console.log(req.user);
@@ -54,14 +48,12 @@ app.use(express.urlencoded({ //Cho phép controller nhận dữ liệu do form g
     extended: true
 }));
 
-
-require('./middlewares/view.mdw')(app);
-require('./middlewares/locals.mdw')(app);
-require('./middlewares/routes.mdw')(app);
+require('./locals.mdw')(app);
+require('./routes.mdw')(app);
 
 
 
-const PORT = 6060;
+const PORT = 3000;
 app.listen(PORT, function() {
-    console.log(`Online Newspaper Web App Front End listening at http://localhost:${PORT}`);
+    console.log(`Online Newspaper Web App Admin Service listening at http://localhost:${PORT}`);
 });

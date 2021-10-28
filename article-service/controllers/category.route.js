@@ -8,10 +8,6 @@ const { getLogger } = require('nodemailer/lib/shared');
 const userModel = require('../models/user.model');
 const { checkAuthenticated } = require('../models/user.model');
 const postingModel = require('../models/posting.model');
-
-const {HTTP} = require('http-call');
-const articleURL = require('../../configs/services-url.json')['article-service'];
-
 moment.updateLocale('en', {
     relativeTime: {
         future: "trong %s",
@@ -36,8 +32,42 @@ moment.updateLocale('en', {
 
 router.get('/tags/:id', async function(req, res) {
     const tagID = +req.params.id || 0;
-    const {body: data} = await HTTP.get(articleURL + '/tags/' + tagID);
-    res.render('vwCategories/byTag', data);
+
+    const tag = await tagModel.findByID(tagID)
+    if (!tag) {
+        return res.json({});
+    }
+
+    const limit = 6;
+    let page = req.query.page || 1;
+    if (page < 1) page = 1;
+
+    const total = await articleModel.countByTagID(tagID);
+    let nPages = Math.floor(total / limit);
+    if (total % limit > 0) nPages++;
+
+    const page_numbers = [];
+    for (i = 1; i <= nPages; i++) {
+        page_numbers.push({
+            value: i,
+            isCurrent: i === +page
+        });
+    }
+
+    const offset = (page - 1) * limit;
+    const list = await articleModel.findByTagID(tagID, offset);
+    await Promise.all(list.map(async(a) => {
+        const rs = await articleModel.getArticleTags(a.id);
+        a.tags = rs;
+    }))
+    list.sort(compareArticlePremium);
+
+    return res.json({
+        tag,
+        articles: list,
+        empty: list.length === 0,
+        page_numbers
+    });
 });
 
 router.get('/categories/:id', async function(req, res) {
