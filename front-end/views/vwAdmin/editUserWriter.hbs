@@ -1,0 +1,137 @@
+{{#section 'css'}}
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+
+{{/section}}
+
+{{#section 'js'}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js">
+</script>
+
+
+<script>
+    $('#birthday').datetimepicker({
+        format: 'Y-m-d',
+        timepicker: false,
+        mask: true
+    })
+
+    $('#btn-delete').on('click', function (e) {
+        const frmAction = $('#btn-delete').attr("formaction");
+        $('#frmEditUserWriter').attr("action", frmAction);
+        $('#frmEditUserWriter').submit();
+    })
+
+    $('#btn-save').on('click', function (e) {
+        const email = $('#email').val();
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (!re.test(email)) {
+            alert("Email không đúng định dạng !!!");
+            return;
+        }
+        const dob = $('#birthday').val();
+        const _dob = new Date(dob);
+        const today = new Date();
+        if (_dob.getTime() > today.getTime()) {
+            alert("Ngày sinh không hợp lệ");
+            return;
+        }
+        if (dob === "____-__-__" || dob === "") {
+            alert("Chưa nhập ngày sinh");
+            return;
+        }
+
+        $('#btn-save-hidden').trigger('click');
+    })
+
+    $('#btn-changePass').on('click', function (e) {
+        e.preventDefault();
+        $('#newpass-placeholder').removeAttr('hidden');
+
+        $('#newpass').prop('required', true)
+            .focus();
+
+    })
+
+</script>
+{{/section}}
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <div class="card border-dark">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <h4><span><i class="fa fa-user-plus" aria-hidden="true"></i></span> Chỉnh sửa</h4>
+                </div>
+                <div class="card-body">
+                    <form id="frmEditUserWriter" method="POST">
+                        <div class="form-group">
+                            <label for="user_name">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="user_name" disabled
+                                value="{{userDetail.user_name}}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">Họ và tên</label>
+                            <input type="text" class="form-control" id="name" name="name" autofocus required
+                                value="{{userDetail.name}}">
+                        </div>
+                        <div class="form-group">
+                            <label for="pen_name">Bút danh</label>
+                            <input type="text" class="form-control" id="pen_name" name="pen_name" autofocus required
+                                value="{{userDetail.pen_name}}">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="text" class="form-control" id="email" name="email" required
+                                value="{{userDetail.email}}">
+                        </div>
+                        <div class="form-group">
+                            <label for="birthday">Ngày sinh</label>
+                            <input type="text" class="form-control" id="birthday" name="birthday" required
+                                value="{{userDetail.birthday}}">
+                        </div>
+
+                
+                        <div class="form-group" id="newpass-placeholder" hidden>
+                            <label for="newpass">Mật khẩu mới</label>
+                            <input type="password" class="form-control" id="newpass" name="newpass">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-10  mt-3">
+                                <a class="btn btn-primary" href="/admin/writers" role="button">
+                                    <i class="fa fa-backward" aria-hidden="true"></i>
+                                    Quay lại
+                                </a>
+                                <button type="button" id="btn-delete" class="btn btn-danger"
+                                    formaction="/admin/writers/del?id={{userDetail.id}}">
+                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                    Xoá
+                                </button>
+
+                                <button id="btn-save" type="button" class="btn btn-success">
+                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                    Lưu
+                                </button>
+                                <button id="btn-save-hidden" type="submit" class="btn btn-success"
+                                    formaction="/admin/writers/patch?id={{userDetail.id}}" hidden>
+                                </button>
+
+                            </div>
+                            <div class="mt-3 col-2 ">
+                                <a id="btn-changePass" class="btn btn-outline-primary  btn-block " href="#"
+                                    role="button">
+                                    Đổi mật khẩu</a>
+                            </div>
+                           
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

@@ -1,0 +1,67 @@
+{{#section 'js'}}
+
+{{/section}}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            {{!-- Độc giả --}}
+            <div class="card border-dark mb-5">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <h4><span><i class="bi bi-table me-2"></i></span> Gia hạn</h4>
+                                     
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="data-pending-table table table-hover table-bordered" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Username</th>                                    
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Số ngày đăng ký</th>
+                                    <th scope="col">&nbsp;</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each this.userList }}
+
+                                <tr>
+                                    <th scope="row">{{id}}</th>
+                                    <td>{{user_name}}</td>
+                                    <td>{{email}}</td>
+                                    <td>{{days_subscribe}}</td>
+                                    
+                                    <td>
+                                        <form action="/admin/users/approve" method="post">
+                                                 <input type="hidden" name="id" value={{id}}></input>
+                                                 <input type="hidden" name="userID" value="{{userID}}"></input>                                                 
+                                                 <input type="hidden" name="days_subscribe" value="{{days_subscribe}}"></input>                                                 
+                                                 <input type="hidden" name="subcription_due_date" value="{{subcription_due_date}}"></input>                                                 
+                                                <button type="submit" class="btn btn-outline-success btn-block" value={{id}} name="Duyet">
+                                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                                    Duyệt
+                                                </button>
+                                        </form>
+                                        {{!-- <a name="" id="" class="btn  btn-success btn-sm"
+                                            href="/admin/users/edit?id=" role="button" title="approve">
+                                            <i class="fa fa-check" aria-hidden="true"></i>
+                                        </a> --}}
+                                    </td>
+
+                                </tr>
+                                {{/each}}
+
+
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {{!-- /Độc giả --}}
+        </div>
+    </div>
+</div>

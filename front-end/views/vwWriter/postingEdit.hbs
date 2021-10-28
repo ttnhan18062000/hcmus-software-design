@@ -1,0 +1,147 @@
+{{#section 'css'}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{{/section}}
+<script src="/module/ckeditor/ckeditor.js"></script>
+
+
+{{#section 'js'}}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            $('.js-multi').select2();
+
+            $('#btn-save').on('click', function (e) {          
+                e.preventDefault(); 
+                $('#frmAssignEditor').submit();
+            })
+        });
+
+    </script>
+{{/section}}
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+
+<div class="container posting my-5">
+    <h1 class="text-center">Edit article</h1>
+    {{#if disableEdit}}        
+        <h5 class="text-center text-danger">Article cannot be edited because it has been reviewed or published</h5>
+    {{/if}}
+    <form action="/post_article" method="post" encType="multipart/form-data">
+        <div class="form-group">
+            <label for="title">Article title</label>
+            <input type="text" {{#if disableEdit}}disabled{{/if}} class="form-control" name="title" id="artical-title" aria-describedby="Title" placeholder="Title" value="{{title}}">
+        </div>
+
+        <div class="form-group">
+            <label for="abstract">Abstract</label>
+            <textarea class="form-control" {{#if disableEdit}}disabled{{/if}}  name="abstract" id="abstract" >{{abstract}}</textarea>
+        </div>
+
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Thumbnail</span>
+            </div>
+            <div class="custom-file">
+                <input type="file" {{#if disableEdit}}disabled{{/if}} class="custom-file-input" name="thumbnail_image"  value="{{thumbnail_image}}" id="thumbnail_image" accept="image/*"/>
+                <label class="custom-file-label" for="thumbnail_image">{{thumbnail_image}}</label>
+            </div>
+        </div>
+        <div class="containter border border-success text-center">
+            <img src="{{thumbnail_image}}" class="rounded mx-auto d-block" id=output alt="Thumbnail Preview">
+        </div>
+        <br>
+
+        <label>Content</label>
+        <textarea name="content" id="editor"  {{#if disableEdit}}disabled{{/if}}>
+            
+        </textarea>
+
+        <br>
+        <label for="category">Select category</label>
+        <select class="form-control" id="main_categoryList" name="main_category_id"  {{#if disableEdit}}disabled{{/if}} >
+            {{#each this.mainCategories}}
+                <option value={{id}}>{{title}}</option>
+            {{/each}}
+        </select>
+
+        <select class="form-control" id="subcategoryList" name="category_id"  {{#if disableEdit}}disabled{{/if}}>
+            <option value=-1 class="default">--Please choose subcategory--</option>
+            {{#each this.subCategories}}
+                <option value={{id}} class="parent-{{parent_id}} subcategory">{{title}} </option>
+            {{/each}}
+        </select>
+
+        <div class="form-group">
+            <label for="assignCat">Tags</label>
+            <select class="js-multi form-control" id="assignCat" name="tags"
+                multiple="multiple" {{#if disableEdit}}disabled{{/if}}>
+                {{#each allTags}}
+                    <option value="{{id}}">{{tag_name}}</option>
+                {{/each}}
+                {{#each selectedTags}}
+                    <option value="{{id}}" selected="selected">{{tag_name}}</option>
+                {{/each}}
+            </select>
+        </div>
+
+        <input type="hidden" id="custId" name="isEdit" value="true">
+        <input type="hidden" id="id" name="id" value="{{id}}">
+        <br>
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-primary">Submit article</button>
+        </div>
+
+    </form>
+</div>
+<script>
+    CKEDITOR.replace( 'editor', {
+        filebrowserBrowseUrl: '/img',
+        filebrowserUploadUrl: '/upload_img'
+    });
+    const id = '{{id}}';
+    const route = '/getArticleContent/' + id;
+    $.get(route,(data, status) => {
+        const content = data.content;
+        CKEDITOR.instances.editor.setData(content);
+    }); 
+</script>
+
+<script>
+    // Add the following code if you want the name of the file appear on select
+    $(".custom-file-input").on("change", function(event) {
+        let output = document.getElementById('output');
+        output.src = URL.createObjectURL(event.target.files[0]);
+        output.onload = function() {
+            URL.revokeObjectURL(output.src) // free memory
+        }
+        const [file] = this.files;
+        console.log(this.files);
+        if (file) {
+            $("#output").src = URL.createObjectURL(file);
+        }
+        let fileName = $(this).val().split("\\").pop();
+        $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+    });
+</script>
+
+<script>
+    $(window).load(function() {
+        $("#main_categoryList").val("{{mainCatID}}");
+        $("#subcategoryList").val("{{subCatID}}");
+
+    });
+
+    $('#main_categoryList').on('change', function () {
+        $("#subcategoryList").attr('disabled', false); //enable subcategory select
+        $("#subcategoryList").val("");
+        $(".subcategory").attr('disabled', true); //disable all category option
+        $(".subcategory").hide(); //hide all subcategory option
+        $(".parent-" + $(this).val()).attr('disabled', false); //enable subcategory of selected category/parent
+        $(".parent-" + $(this).val()).show(); 
+        $(".default" + $(this).val()).attr('disabled', false);
+        $(".default" + $(this).val()).show();
+        $("#subcategoryList").val("{{subCatID}}");
+    });
+</script>

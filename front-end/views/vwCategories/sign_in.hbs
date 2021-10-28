@@ -1,0 +1,35 @@
+<div class="container reg">
+
+    <h1 class="text-center">Sign In</h1>
+    <br>
+    {{#if messages.error}}
+        {{{messages.error}}}
+    {{/if}}
+    <br>
+    <form class="form-reg"  action="/user/login" method="POST">
+        <div class="form-group">
+            <label for="user-name">User name</label>
+            <input type="text" class="form-control" id="user-name" name="user_name" placeholder="Enter username">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" class="form-control" id="exampleInputPassword1" name="password" placeholder="Password">
+        </div>
+
+        <div class="d-flex justify-content-between px-2">
+            <a href="/user/forgetPassword">Forgot password?</a>
+            <button type="submit" class="btn btn-primary active btn-sm">Login</button>
+        </div>
+
+        <h4 class="text-center text-secondary">Or try login by</h4>
+        <div class="d-flex p-2 justify-content-center align-items-center">
+            <a href="http://localhost:3000/user/auth/google"><i class="fa fa-google text-center fa-3x" style="color:red" aria-hidden="true"></i></a>
+        </div>
+
+        <hr style="width: 100%; height: 1px; background-color:gray;" />
+        <h6 class="text-center">Don't have an account yet? <a href="/user/register"><b>Register<b></a></h6>
+        <br>
+    </form>
+
+</div>
+

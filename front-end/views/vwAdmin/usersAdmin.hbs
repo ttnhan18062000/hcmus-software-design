@@ -1,0 +1,60 @@
+{{#section 'js'}}
+
+{{/section}}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            {{!-- Độc giả --}}
+            <div class="card border-dark mb-5">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <h4><span><i class="bi bi-table me-2"></i></span> Danh sách Administrator</h4>
+
+                    <a class="btn btn-success" href="/admin/usersAdmin/add" role="button">
+                        <i class="fa fa-user-plus" aria-hidden="true"></i>
+                        Thêm
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="data-admin-table table table-hover table-bordered" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                     <th scope="col">Username</th>
+                                    <th scope="col">Họ và tên</th>
+                                    <th scope="col">Email</th>
+                
+                                    <th scope="col">&nbsp;</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each adminList}}                                    
+                                <tr>
+                                    <th scope="row">{{id}}</th>
+                                    <td>{{user_name}}</td>
+                                    <td>{{name}}</td>
+                                    <td>{{email}}</td>
+                                    <td>
+                                        <a name="" id="" class="btn btn-primary btn-sm" href="/admin/usersAdmin/edit?id={{id}}" role="button"
+                                            title="Edit">
+                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                                    
+                                </tr>
+                                {{/each}}
+                
+
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {{!-- /Độc giả --}}
+        </div>
+    </div>
+</div>

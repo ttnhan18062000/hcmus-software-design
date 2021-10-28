@@ -1,0 +1,147 @@
+{{#section 'css'}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{{/section}}
+
+{{#section 'js'}}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        $('.js-multi').select2();
+
+        $('#btn-save').on('click', function (e) {          
+            e.preventDefault(); 
+            $('#frmAssignEditor').submit();
+        })
+    });
+
+</script>
+{{/section}}
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <div class="card border-dark">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <h4><span><i class="fa fa-user-plus" aria-hidden="true"></i></span> Phân công chuyên mục</h4>
+                </div>
+                <div class="card-body">
+                    <form id="frmAssignEditor" method="POST" action="/admin/editors/assign?id={{userDetail.id}}">
+                        <div class="form-group row">
+
+                            <label class=" col-sm-2 col-form-label" for="email">Tên đăng nhập</label>
+
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="user_name" disabled
+                                    value="{{userDetail.user_name}}">
+                            </div>
+
+                            <label class=" col-sm-2 col-form-label" for="name">Họ và tên</label>
+
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="name" name="name" disabled
+                                    value="{{userDetail.name}}">
+                            </div>
+                        </div>
+                        <div class="card mt-3">
+                            <div class="card-header bg-light text-center">
+                                <h4><strong>Chuyên mục đã phân công</strong></h4>
+                            </div>
+                            <div class="card-body">
+
+
+                                <div class="table-responsive">
+                                    <table class="data-assignedCat-table table table-hover table-bordered"
+                                        style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">ID</th>
+                                                <th scope="col">Tên chuyên mục</th>
+                                                <th scope="col">Chuyên mục cha</th>
+
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{#each assignedCat}}
+                                            <tr>
+                                                <th scope="row">{{category_id}}</th>
+                                                <td>{{title}}</td>
+                                                <td>
+                                                    {{#if parent_title}}
+                                                        {{parent_title}}
+                                                    {{else}}
+                                                        Không
+                                                    {{/if}}
+                                                </td>
+                                            </tr>
+                                            {{/each}}
+
+
+
+                                        </tbody>
+
+                                    </table>
+                                </div>
+
+
+                                <div class="form-group row mt-4">
+
+                                    <label for="assignCat"><strong>Xoá chuyên mục đã phân công</strong></label>
+
+                                    <select class="js-multi form-control" name="deleteAssignedCat" multiple="multiple">
+                                        {{#each assignedCat }}
+                                        <option value="{{category_id}}">{{title}} {{#if parent_title}}- ({{parent_title}}){{/if}}</option>
+                                        {{/each}}
+                                        
+                                    </select>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mt-3">
+                            <div class="card-header bg-light text-center">
+                                <h4><strong>Chuyên mục chưa phân công</strong></h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group row">
+                                    <label for="assignCat"><strong>Phân công thêm chuyên mục</strong></label>
+                                    
+                                    <select class="js-multi form-control" id="assignCat" name="assignCat"
+                                        multiple="multiple">
+                                        {{#each unassignedCat }}
+
+                                        <option value="{{id}}">{{title}} {{#if parent_title}}- ({{parent_title}}) {{/if}}</option>
+                                        {{/each}}
+                                        
+                                    </select>
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
+                <div class="card-footer">
+                    <div class="row ">
+                        <div class="col-12">
+                            <a class="btn btn-primary" href="/admin/editors" role="button">
+                                <i class="fa fa-backward" aria-hidden="true"></i>
+                                Quay lại
+                            </a>
+                            <button id="btn-save" type="button" class="btn btn-success">
+                                <i class="fa fa-check" aria-hidden="true"></i>
+                                Lưu
+                            </button>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

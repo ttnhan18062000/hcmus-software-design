@@ -1,0 +1,112 @@
+{{#section 'headscript'}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" />
+<link rel="stylesheet" href="/css/cssAdmin/dataTables.bootstrap5.min.css" />
+{{/section}}
+
+{{#section 'css'}}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+{{/section}}
+
+{{#section 'js'}}
+<script src="/js/jsAdmin/bootstrap.bundle.min.js"></script>
+<script src="/js/jsAdmin/jquery-3.5.1.js"></script>
+<script src="/js/jsAdmin/jquery.dataTables.min.js"></script>
+<script src="/js/jsAdmin/dataTables.bootstrap5.min.js"></script>
+<script src="/js/jsAdmin/script.js"></script>
+{{/section}}
+
+
+<div class="container-fluid my-5">
+    <div class="row mb-3">
+        <div class="col-md-3 ">
+            <div class="card mb-3 border">
+                    <h4 class="card-header">
+                        <i class="fa fa-archive" aria-hidden="true"></i>
+                        Quản lý bài viết
+                    </h4>
+                    <div class="list-group list-group-flush">  
+                        <a href="/editorAssignedCat"
+                            class="list-group-item list-group-item-action">
+                            <i class="fa fa-caret-right" aria-hidden="true"></i>
+                            Chuyên mục được phân công  
+                        </a>                       
+                        <a href="/editorPostList"
+                            class="list-group-item list-group-item-action ">
+                            <i class="fa fa-caret-right" aria-hidden="true"></i>
+                            Chưa duyệt   
+                        </a>    
+                         <a href="/editorRejectedList"
+                            class="list-group-item list-group-item-action {{#if rejected}}active{{/if}}">
+                            <i class="fa fa-caret-right" aria-hidden="true"></i>
+                            Đã từ chối                         
+                        </a>                    
+                        <a href="/editorApprovedList"
+                            class="list-group-item list-group-item-action ">
+                            <i class="fa fa-caret-right" aria-hidden="true"></i>
+                            Đã duyệt                         
+                        </a>                      
+                                            
+                    </div>
+                </div>
+        </div>
+        <div class="col-md-9 ">
+            <div class="card border-dark">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <h4 class="text-white"><span><i class="fa fa-calendar-times-o" aria-hidden="true"></i></span> Danh sách bài viết</h4>
+
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="data-editorApprovedList-table table table-hover table-bordered" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Tên Bài Viết</th>
+                                    <th scope="col">Chuyên mục</th>
+                                    <th scope="col">Ngày từ chối</th>                                    
+                                    <th scope="col">Lí do</th>                                    
+                                   
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each rejectedList }}
+
+                                <tr>
+                                    <th scope="row">{{article_id}}</th>
+                                    <td>{{title}}</td>
+                                    <td>{{cat_title}} {{#if parent_title}} - ({{parent_title}}){{/if}}</td>
+                                   <td>{{approved_date}}</td>
+                                   <td>
+                                       <form action="/editorRejectedList/rejectReason" method="post">
+                                                 <input type="hidden" name="author_id" value={{author_id}}></input>
+                                                 <input type="hidden" name="title" value="{{title}}"></input>
+                                                 <input type="hidden" name="category" value="{{cat_title}}"></input>
+                                                 {{#if parent_title}}
+                                                 <input type="hidden" name="category_parent" value="{{parent_title}}"></input>
+                                                 {{/if}}
+                                                 <input type="hidden" name="rejectedReason" value="{{reject_reason}}"></input>
+                                                <button type="submit" class="btn btn-outline-success mx-auto btn-block btn-sm" value={{id}} name="articleID">Xem</button>
+                                        </form>
+                                   </td>
+                                   
+                                    {{!-- <td><a name="" id="" class="btn btn-success" href="#" role="button">
+                                            <i class="fa fa-check" aria-hidden="true"></i>
+                                            Duyệt
+                                        </a></td> --}}
+                                </tr>
+                                {{/each}}
+
+
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

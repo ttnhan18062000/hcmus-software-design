@@ -1,0 +1,49 @@
+{{#section 'css'}}
+    <style>
+        .btn {
+            font-size: 20px !important;
+        }
+
+        .card {
+            border-width:3px !important;
+        }
+    </style>
+{{/section}}
+
+<div class="container posting my-5">
+    <div class="card-deck">
+        <div class="card bg-light border-info">
+            <div class="card-body">
+                <h2 class="card-title text-center">1 Tháng</h2>
+                <br>
+                <form action="/user/subscribe" method="post">
+                    <button type="submit" class="btn btn-outline-primary mx-auto btn-block" value=30 name="no_day_buy">Mua 100,000đ</button>
+                </form>
+                <br>
+                <p class="card-text text-center">Giá rẻ, tiện lợi để dùng thử</p>
+            </div>
+        </div>
+        <div class="card border-info bg-light">
+            <div class="card-body  ">
+                <h2 class="card-title text-center">6 Tháng</h2>
+                <br>
+                <form action="/user/subscribe" method="post">
+                    <button type="submit" class="btn btn-outline-success mx-auto btn-block" value=180 name="no_day_buy">Mua 400,000đ</button>
+                </form>
+                <br>
+                <p class="card-text text-center">Giá giảm hơn <b>30%</b> so với deal trước đầu tiên</p>
+            </div>
+        </div>
+        <div class="card bg-light border-info">
+            <div class="card-body">
+                <h2 class="card-title text-center">1 Năm</h2>
+                <br>
+                <form action="/user/subscribe" method="post">
+                    <button type="submit" class="btn btn-outline-danger mx-auto btn-block" value=360 name="no_day_buy">Mua 600,000đ</button>
+                </form>
+                <br>
+                <p class="card-text text-center">Giá giảm hơn <b>50%</b> so với deal trước đầu tiên</p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,25 @@
+<div class="container posting my-5 mx-4">
+
+    <p class="text-center">{{message}}</p>
+    <br>
+    <p class="text-center">Go back to <a href="/" class="text-primary">Main page</a> in <span id="timer"></span></p>
+
+
+</div>
+
+<script>
+    let count=5;
+
+    let counter=setInterval(timer, 1000); //1000 will  run it every 1 second
+
+    function timer()
+    {
+        count=count-1;
+        if (count <= 0)
+        {
+            clearInterval(counter);
+            window.location.href = "/";
+        }
+        document.getElementById("timer").innerHTML=count + " seconds";
+    }
+</script>

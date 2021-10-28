@@ -1,0 +1,83 @@
+{{#section 'headscript'}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" />
+<link rel="stylesheet" href="/css/cssAdmin/dataTables.bootstrap5.min.css" />
+{{/section}}
+
+{{#section 'css'}}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+{{/section}}
+
+{{#section 'js'}}
+<script src="/js/jsAdmin/bootstrap.bundle.min.js"></script>
+<script src="/js/jsAdmin/jquery-3.5.1.js"></script>
+<script src="/js/jsAdmin/jquery.dataTables.min.js"></script>
+<script src="/js/jsAdmin/dataTables.bootstrap5.min.js"></script>
+<script src="/js/jsAdmin/script.js"></script>
+{{/section}}
+
+
+<div class="container-fluid my-5">
+    <div class="row mb-3">
+        <div class="col-md-3 ">
+            <div class="card mb-3 border">
+                <h4 class="card-header">
+                    <i class="fa fa-archive" aria-hidden="true"></i>
+                    Quản lý bài viết
+                </h4>
+                <div class="list-group list-group-flush">
+                    <a href="/editorAssignedCat"
+                            class="list-group-item list-group-item-action">
+                            <i class="fa fa-caret-right" aria-hidden="true"></i>
+                            Chuyên mục được phân công  
+                    </a> 
+                    <a href="/editorPostList" class="list-group-item list-group-item-action ">
+                        <i class="fa fa-caret-right" aria-hidden="true"></i>
+                        Chưa duyệt
+                    </a>
+                    <a href="/editorRejectedList"
+                        class="list-group-item list-group-item-action {{#if rejected}}active{{/if}}">
+                        <i class="fa fa-caret-right" aria-hidden="true"></i>
+                        Đã từ chối
+                    </a>
+                    <a href="/editorApprovedList" class="list-group-item list-group-item-action ">
+                        <i class="fa fa-caret-right" aria-hidden="true"></i>
+                        Đã duyệt
+                    </a>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9 ">
+            <div class="card border-dark">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <h4 class="text-white"><span><i class="fa fa-calendar-times-o" aria-hidden="true"></i></span> Lí do
+                        từ chối</h4>
+
+                </div>
+                <div class="card-body">
+                                
+                    <p class="lead"><strong>Tên bài báo:</strong> {{rejectReason.title}}</p>
+                    <hr class="my-4">
+                    <p class="lead"><strong>Chuyên mục:</strong> {{rejectReason.category}} 
+                        {{#if rejectReason.category_parent}}
+                            - ({{rejectReason.category_parent}})
+                        {{/if}}
+                    </p>
+                    <hr class="my-4">
+                    <p class="lead"><strong>Tên tác giả: </strong>{{authorName}}  <span>&nbsp;&nbsp; <strong>ID:</strong> {{rejectReason.author_id}}</span></p>
+                    <hr class="my-4">
+                    
+                    <p class="lead"><strong>Lí do:</strong> {{rejectReason.rejectedReason}}</p>                  
+
+                        
+                    
+                </div>
+                <div class="card-footer">
+                    <a name="" id="" class="btn btn-primary" href="/editorRejectedList" role="button">Quay lại</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

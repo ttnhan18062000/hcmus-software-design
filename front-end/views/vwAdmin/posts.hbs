@@ -1,0 +1,55 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 mb-3">
+           <div class="card border-dark">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <h4><span><i class="bi bi-table me-2"></i></span> Danh sách bài viết</h4>
+
+                    
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="data-post-table table table-hover table-bordered" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Tên Bài Viết</th>
+                                    <th scope="col">Chuyên mục</th>
+                                    <th scope="col">Trạng thái</th>
+                                    <th scope="col">&nbsp;</th>
+                                                            
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each articles }}
+                                    
+                                <tr>
+                                    <th scope="row">{{id}}</th>
+                                    <td>{{title}}</td>
+                                    <td>{{cat_title}} {{#if parent_title}} - ({{parent_title}}){{/if}}</td>
+                                    <td>{{status}}</td>
+                                    <td>
+                                        <a name="" id="" class="btn btn-primary btn-sm" href="/admin/posts/edit?id={{id}}" role="button"
+                                            title="Edit">
+                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                                   
+                                    {{!-- <td><a name="" id="" class="btn btn-success" href="#" role="button">
+                                        <i class="fa fa-check" aria-hidden="true"></i>
+                                        Duyệt
+                                    </a></td> --}}
+                                </tr>
+                                {{/each}}
+                                
+
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

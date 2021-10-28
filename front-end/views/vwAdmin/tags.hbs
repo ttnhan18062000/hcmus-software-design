@@ -1,0 +1,50 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 mb-3">
+           <div class="card border-dark">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <h4><span><i class="bi bi-table me-2"></i></span> Danh sách nhãn</h4>
+
+                    <a class="btn btn-success" href="/admin/tags/add" role="button">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        Thêm
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="data-tag-table table table-hover table-bordered" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Tên Nhãn</th>
+                                    <th scope="col">&nbsp;</th>
+                                  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each tags as |alias|}}
+                                    
+                                <tr>
+                                    <th scope="row">{{id}}</th>
+                                    <td>{{tag_name}}</td>
+                                    <td>
+                                        <a name="" id="" class="btn btn-primary btn-sm" href="/admin/tags/edit?id={{id}}" role="button"
+                                            title="Edit">
+                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                              
+                                </tr>
+                                {{/each}}
+                                
+
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

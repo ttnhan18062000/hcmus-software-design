@@ -1,0 +1,57 @@
+{{#section 'js'}}
+<script>
+    $('#frmAddTag').on('submit', function (e) {
+
+        e.preventDefault();
+
+        const tag_name = $('#tag_name').val();
+        if (tag_name.length === 0) {
+            alert('Tên nhãn không được rỗng !!!');
+            return;
+        }
+
+
+        $.getJSON(`/admin/is-tag-available?tag_name=${tag_name}`, function (data) {
+            if (data === false) {
+                alert('Tên nhãn đã tồn tại !!!');
+            }
+            else {
+                $('#frmAddTag').off('submit').submit();
+            }
+        })
+    })
+</script>
+{{/section}}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <div class="card border-dark">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <h4><span><i class="fa fa-plus-circle" aria-hidden="true"></i></span> Thêm nhãn</h4>
+                </div>
+                <div class="card-body">
+                    <form id="frmAddTag" method="POST">   
+                        <div class="form-group">
+                            <label for="tag_name">Tên nhãn</label>
+                            <input type="text" class="form-control" id="tag_name" name="tag_name" autofocus>
+                        </div>
+
+                        <div class="mt-3">
+
+                            <a class="btn btn-primary" href="/admin" role="button">
+                                <i class="fa fa-backward" aria-hidden="true"></i>
+                                Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa fa-check" aria-hidden="true"></i>
+                                Lưu
+                            </button>
+                        </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
