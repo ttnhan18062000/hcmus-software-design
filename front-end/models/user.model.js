@@ -1,7 +1,6 @@
 const db = require('../database/db');
 const moment = require('moment');
 
-
 const addUser = (user) => {
     console.log("adding user");
     return db('users').insert(user);

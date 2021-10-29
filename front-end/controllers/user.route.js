@@ -12,6 +12,7 @@ const userModel = require('../models/user.model');
 const sendMail = require('../public/js/sendEmail.js');
 
 const {HTTP} = require('http-call');
+const userURL = require('../../configs/services-url.json')['user-service'];
 
 const generateOTP = () => {
     const digits = '0123456789';
@@ -22,40 +23,16 @@ const generateOTP = () => {
     return OTP;
 };
 
-router.get('/userInfo', checkAuthenticated, function(req, res) {
-    req.user.then(async (user) =>
-    {
-        let subDate = "You have not subscribe yet";
-        
-        if (user.subcription_due_date){
-            const subDateMoment = moment(user.subcription_due_date);
-            if (subDateMoment.isAfter()){
-                subDate = subDateMoment.format("dddd, MMMM Do YYYY, h:mm:ss a");
-            }
-        }
-        console.log(user);
-        const penname = await userModel.findPenNameByID(user.id);
-        res.render('vwCategories/userInfo', {
-            user_name: user.user_name,
-            name: user.name,
-            email: user.email,
-            birthdate: moment(user.birthday).format('DD-MM-YYYY'),
-            subscribeDate: subDate,
-            penname: penname
-        });
-    })
+router.get('/userInfo', checkAuthenticated, async function(req, res) {
+    const user = await req.user.then((user) => user);
+    const {body: data} = await HTTP.get(encodeURI(userURL + '/userInfo?user=' + JSON.stringify(user)));
+    res.render('vwCategories/userInfo', data);
 });
 
 
 router.get("/auth/google", passport.authenticate("google", {
     scope: ["profile", "email"]
 }));
-
-// router.get("/google/callback", passport.authenticate('google', {
-//     successRedirect: '/',
-//     failureRedirect: '/user/sign_in'
-//     })
-// );
 
 router.route('/google/callback').get(passport.authenticate('google', {
     failureRedirect: '/user/sign_in'
@@ -78,7 +55,6 @@ router.get('/facebook/callback',
 router.get('/sign_in', checkNotAuthenticated, function(req, res) {
     res.render('vwCategories/sign_in');
 });
-
 
 router.get('/otp/:username', function(req, res) {
     const username = req.params.username;
@@ -117,14 +93,11 @@ router.get('/forgetPassword', (req, res) => {
 
 
 router.get('/editArticle/:id', function(req, res) {
-    const id = req.params.id;
-    console.log(req.params.username);
     res.render('vwUser/otp', {username: username});
 });
 
 router.post('/resentotp', async function(req, res) {
     const username = req.body.username;
-    console.log(username);
     const user = await userModel.findByUsername(username);
     sendMail(user.email, user.name, 'News Registing Conformation Email', 
                 "This is your conformation email for registing at News", user.otp);
@@ -194,30 +167,6 @@ router.post('/subscribe', function(req, res) {
         });
     });
 });
-
-// router.post('/subscribe', function(req, res) {
-//     req.user.then((user) => {
-//         const currSub = user.subcription_due_date;
-//         const nDaybuy = req.body.no_day_buy;
-//         let newSubdate;
-//         if (user.subcription_due_date){
-//             newSubdate = moment(currSub);
-//             console.log("currday", newSubdate);
-//         }
-//         else{
-//             newSubdate = moment();
-//             console.log("curr date null", newSubdate);
-//         }
-//         newSubdate = newSubdate.add(nDaybuy, 'days');
-//         const mysqlnewdate = newSubdate.toDate().toISOString().slice(0, 19).replace('T', ' ');
-//         console.log(user.id, req.body.no_day_buy, mysqlnewdate);
-//         updateSubdate(user.id, mysqlnewdate);
-//         // .then(() => {
-//         //     const msg = "Thank you for buying premium, your subscription lasts until " + mysqlnewdate; 
-//         //     res.render('vwUser/waiting', {message: msg});
-//         // });
-//     });
-// });
 
 router.get('/register', function(req, res) {
     res.render('vwCategories/register');
