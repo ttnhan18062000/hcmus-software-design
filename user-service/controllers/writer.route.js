@@ -11,11 +11,10 @@ const postingModel = require('../models/posting.model');
 const tagModel = require('../models/tag.model');
 const userModel = require('../models/user.model');
 const moment = require('moment');
-const { checkAuthenticated, isWriter } = require('../models/user.model');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, '../public/article_img'))
+        cb(null, path.join(__dirname, '../../public/article_img'));
     },
     filename: (req, file, cb) => {
         //console.log(file);
@@ -25,7 +24,28 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-const getArticles = (authorId, approvalStatus, res) => {
+router.post('/rejectReason', async(req, res) => {
+    
+    const articleID = decodeURI(req.query.articleID);
+    const editor_id = decodeURI(req.query.editor_id);
+
+    const editor = await userModel.getUserbyId(editor_id);
+
+    const info = {
+        id: articleID,
+        editorName: editor.name,
+        editor_id: editor_id,
+        title: req.body.title,
+        category: req.body.category,
+        parent_title: req.body.parent_title,
+        rejectedReason: req.body.rejectedReason
+    }
+    return res.json(info);
+});
+
+router.get('/getArticles', function(req, res) {
+    const authorId = decodeURI(req.query.authorId);
+    const approvalStatus = decodeURI(req.query.approvalStatus);
     findArticleByAuthorID(authorId).then((arts) => {
         //console.log(arts);
         let newArts = arts.map((art) => {
@@ -58,84 +78,35 @@ const getArticles = (authorId, approvalStatus, res) => {
 
         switch (approvalStatus) {
             case 'Chưa được duyệt':
-                res.render('vwWriter/writer', {
+                return res.json({
                     articles: newArts,
                     wait: true
                 });
                 break;
             case 'Đã xuất bản':
-                res.render('vwWriter/writer_published', {
+                return res.json({
                     articles: newArts,
                     published: true
                 });
                 break;
             case 'Bị từ chối':
-                res.render('vwWriter/writer_rejected', {
+                return res.json({
                     articles: newArts,
                     rejected: true
                 });
                 break;
             default:
-                res.render('vwWriter/writer_pending', {
+                return res.json({
                     articles: newArts,
                     pending_publish: true
                 });
                 break;
         }
     });
-}
-
-router.post('/rejectReason', async(req, res) => {
-    console.log(req.body);
-
-    const articleID = parseInt(req.body.articleID);
-    const editor_id = parseInt(req.body.editor_id);
-
-    const editor = await userModel.getUserbyId(editor_id);
-
-    const info = {
-        id: articleID,
-        editorName: editor.name,
-        editor_id: editor_id,
-        title: req.body.title,
-        category: req.body.category,
-        parent_title: req.body.parent_title,
-        rejectedReason: req.body.rejectedReason
-    }
-    res.render('vwWriter/rejectedReason', info);
-});
-
-
-router.get('/writer', checkAuthenticated, isWriter, function(req, res) {
-    req.user.then((user) => {
-        const id = user.id;
-        getArticles(id, 'Chưa được duyệt', res);
-    });
 })
 
-router.get('/writer/rejected', checkAuthenticated, isWriter, function(req, res) {
-    req.user.then((user) => {
-        const id = user.id;
-        getArticles(id, 'Bị từ chối', res);
-    });
-})
-
-router.get('/writer/pending', checkAuthenticated, isWriter, function(req, res) {
-    req.user.then((user) => {
-        const id = user.id;
-        getArticles(id, 'Đã được duyệt & chờ xuất bản', res);
-    });
-})
-
-router.get('/writer/published', checkAuthenticated, isWriter, function(req, res) {
-    req.user.then((user) => {
-        const id = user.id;
-        getArticles(id, 'Đã xuất bản', res);
-    });
-})
-
-router.get('/editArticle/:id', checkAuthenticated, isWriter, async function(req, res) {
-    const id = req.params.id;
+router.get('/editArticle', async function(req, res) {
+    const id = decodeURI(req.query.id);
     const article = await postingModel.findArticleByID2(id);
     const tagList = await tagModel.findByArticleID(id);
     const mainCategories = await categoryModel.allMainCategories();
@@ -156,7 +127,7 @@ router.get('/editArticle/:id', checkAuthenticated, isWriter, async function(req,
         disableEdit = false;
     }
 
-    res.render('vwWriter/postingEdit.hbs', {
+    return res.json({
         id: article.id,
         title: article.title,
         abstract: article.abstract,
@@ -172,8 +143,8 @@ router.get('/editArticle/:id', checkAuthenticated, isWriter, async function(req,
     });
 });
 
-router.get('/getArticleContent/:id', checkAuthenticated, isWriter, async function(req, res) {
-    const id = req.params.id;
+router.get('/getArticleContent', async function(req, res) {
+    const id = decodeURI(req.query.id);
     console.log("here");
     const article = await postingModel.findArticleByID2(id);
     let content = article.content.replace(/(?:\r\n|\r|\n)/g, '');
@@ -181,88 +152,77 @@ router.get('/getArticleContent/:id', checkAuthenticated, isWriter, async functio
         content: content,
         status: 'success'
     };
-    res.send(response)
+    return res.json(response);
 });
 
-router.get('/posting', checkAuthenticated, isWriter, async function(req, res) {
+router.get('/posting', async function(req, res) {
     const mainCategories = await categoryModel.allMainCategories();
     const subCategories = await categoryModel.allSubCategories();
     const tags = await tagModel.all();
 
-    res.render('vwWriter/posting.hbs', { mainCategories: mainCategories, subCategories: subCategories, tags: tags });
+    return res.json({ mainCategories: mainCategories, subCategories: subCategories, tags: tags });
 });
 
 router.post('/post_article', (req, res) => {
-    req.user.then((user) => {
-        let relativePath;
-        upload.single('thumbnail_image')(req, res, async function(err) {
-            //console.log('body', req.body);
-            if (err instanceof multer.MulterError) {
+    let relativePath;
+    req.file = JSON.parse(decodeURI(req.query.file));
+    req.body = JSON.parse(decodeURI(req.query.body));
+    const user = JSON.parse(decodeURI(req.query.user));
+    upload.single('thumbnail_image')(req, res, async function(err) {
+        //console.log('body', req.body);
+        if (err instanceof multer.MulterError) {
+            console.log(err);
+        } else if (err) {
+            console.log(err);
+        }
+        if (req.file) {
+            relativePath = '/article_img/' + req.file.filename;
+        } else {
+            relativePath = '/article_img/' + req.body.thumbnail_image;
+        }
+        //console.log(req.body);
+        let article = req.body;
+        console.log(article);
+        let tags = article['tags'];
+        if (article['category_id'] === '-1') {
+            article['category_id'] = article['main_category_id'];
+        }
+        delete article['tags'];
+        delete article['main_category_id'];
+
+        article['thumbnail_image'] = relativePath;
+
+        article['created_time'] = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        article['author_id'] = user.id;
+        console.log(tags);
+
+        if (body.isEdit) {
+            const id = article['id'];
+            delete article['isEdit'];
+            delete article['id'];
+            const post = await postingModel.updateArticle(article, tags, id);
+            console.log(post);
+            console.log("success posting article");
+            return res.json(true);
+        } else {
+            addArticle(article, tags).then(
+                () => {
+                    console.log("success posting article");
+                    console.log(tags);
+                    //console.log(article);
+                    return res.json(true);
+                }
+            ).catch((err) => {
                 console.log(err);
-            } else if (err) {
-                console.log(err);
-            }
-            if (req.file) {
-                relativePath = '/article_img/' + req.file.filename;
-            } else {
-                relativePath = '/article_img/' + req.body.thumbnail_image;
-            }
-            //console.log(req.body);
-            let article = req.body;
-            console.log(article);
-            let tags = article['tags'];
-            if (article['category_id'] === '-1') {
-                article['category_id'] = article['main_category_id'];
-            }
-            delete article['tags'];
-            delete article['main_category_id'];
-
-            article['thumbnail_image'] = relativePath;
-
-            article['created_time'] = new Date().toISOString().slice(0, 19).replace('T', ' ');
-            article['author_id'] = user.id;
-            console.log(tags);
-
-            if (req.body.isEdit) {
-                const id = article['id'];
-                delete article['isEdit'];
-                delete article['id'];
-                const post = await postingModel.updateArticle(article, tags, id);
-                console.log(post);
-                // (
-                //     () => {
-                //         console.log("success posting article");
-                //         //console.log(article);
-                //         res.redirect('/posting');
-                //     }
-                // ).catch( (err) =>
-                //     {
-                //         console.log(err);
-                //         return;
-                //     }        
-                // );
-                console.log("success posting article");
-                //console.log(article);
-                res.redirect('/posting');
-            } else {
-
-                addArticle(article, tags).then(
-                    () => {
-                        console.log("success posting article");
-                        console.log(tags);
-                        //console.log(article);
-                        res.redirect('/posting');
-                    }
-                ).catch((err) => {
-                    console.log(err);
-                    return;
-                });
-            }
-        });
-    })
+                return;
+            });
+        }
+    });
 })
 
 router.post('/upload_img', (req, res) => {
+    req.file = JSON.parse(decodeURI(req.query.file));
+    req.body = JSON.parse(decodeURI(req.query.body));
     upload.single('upload')(req, res, function(err) {
         if (err instanceof multer.MulterError) {
             console.log(err);
@@ -274,7 +234,7 @@ router.post('/upload_img', (req, res) => {
         let url = '/article_img/' + filename;
         let msg = 'Upload successfully';
         let funcNum = req.query.CKEditorFuncNum;
-        res.status(200).json({
+        return res.json({
             uploaded: 1,
             fileName: filename,
             url: url
