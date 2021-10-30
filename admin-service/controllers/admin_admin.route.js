@@ -1,107 +1,58 @@
 const express = require('express');
 const moment = require('moment');
-const userModel = require('../models/user.model')
-const bcrypt = require('bcryptjs');
-const {checkAuthenticated,isAdmin} = require('../models/user.model');
-
+const userModel = require('../models/user.model');
 
 const router = express.Router();
 
-router.get('/usersAdmin',checkAuthenticated,isAdmin,  async function (req, res) {
-
+router.get('/usersAdmin', async function (req, res) {
     const adminList = await userModel.allUserByType(3);
 
-    res.render('vwAdmin/usersAdmin', {
-        layout: 'admin.hbs',
-        userMenuActive: true,
-        userAdminActive: true,
-        adminList
+    return res.json({
+        adminList,
     });
-})
+});
 
-router.get('/usersAdmin/add',checkAuthenticated,isAdmin,  function (req, res) {
-    res.render('vwAdmin/addUserAdmin', {
-        layout: 'admin.hbs',
-        userMenuActive: true,
-        userAdminActive: true
-    });
-})
+router.post('/usersAdmin/add', function (req, res) {
+    const user = JSON.parse(decodeURI(req.query.user));
+    userModel
+        .addUser(user)
+        .then(() => {
+            console.log('success');
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 
-router.post('/usersAdmin/add',  function (req, res) {
-    const hash = bcrypt.hashSync(req.body.raw_password, 10);
+    return res.json(true);
+});
 
-    const user = {
-        user_name: req.body.user_name,
-        password: hash,
-        name: req.body.name,
-        email: req.body.email,
-        birthday: req.body.birthday,
-        user_type: 3,
-        is_active: true
-    }
+router.get(
+    '/usersAdmin/edit',
 
-    userModel.addUser(user).then(
-        () => {
-            console.log("success")
+    async function (req, res) {
+        const id = JSON.parse(decodeURI(req.query.id));
+        const userDetail = await userModel.findByID(id);
+
+        if (userDetail === null) {
+            return res.json({ result: false });
         }
-    ).catch((err) => {
-        console.log(err);
+        userDetail.birthday = moment(userDetail.birthday).format('YYYY-MM-DD');
+
+        return res.json({ result: true, userDetail });
     }
-    );
+);
 
-    res.redirect('/admin/usersAdmin/add');
-})
-
-router.get('/usersAdmin/edit',checkAuthenticated,isAdmin,  async function (req, res) {
-
-    const userDetail = await userModel.findByID(req.query.id);
-
-    if (userDetail === null) {
-        return res.redirect('/admin/usersAdmin');
-    }
-    userDetail.birthday = moment(userDetail.birthday).format("YYYY-MM-DD");
-
-    res.render('vwAdmin/editUserAdmin', {
-        layout: 'admin.hbs',
-        userMenuActive: true,
-        userAdminActive: true,
-        userDetail
-    });
-})
-
-router.post('/usersAdmin/patch',  async function (req, res) {
-    console.log("usersAdmin patch");
-
-    let updatedUser = {};
-    if (req.body.newpass.length != 0) {
-        const hash = bcrypt.hashSync(req.body.newpass, 10);
-        updatedUser = {
-            id: req.query.id,
-            name: req.body.name,
-            email: req.body.email,
-            birthday: req.body.birthday,
-            password: hash,
-        }
-
-    }
-    else {
-        updatedUser = {
-            id: req.query.id,
-            name: req.body.name,
-            email: req.body.email,
-            birthday: req.body.birthday,
-        }
-    }
-
+router.post('/usersAdmin/patch', async function (req, res) {
+    console.log('usersAdmin patch');
+    const updatedUser = JSON.parse(decodeURI(req.query.updatedUser));
     await userModel.patch(updatedUser);
+    return res.json(true);
+});
 
-    res.redirect('/admin/usersAdmin');
-})
-
-router.post('/usersAdmin/del',  async function (req, res) {
-    const userID = req.query.id;
+router.post('/usersAdmin/del', async function (req, res) {
+    const userID = JSON.parse(decodeURI(req.query.id));
     await userModel.del(userID);
-    res.redirect('/admin/usersAdmin');
-})
+    return res.json(true);
+});
 
 module.exports = router;
