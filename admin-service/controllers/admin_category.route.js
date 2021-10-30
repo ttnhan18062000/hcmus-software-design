@@ -1,85 +1,51 @@
 const express = require('express');
 const categoryModel = require('../models/category.model');
-const {checkAuthenticated,isAdmin} = require('../models/user.model');
 
 const router = express.Router();
 
-router.get('/categories',checkAuthenticated,isAdmin, async function (req, res) {
-
-    res.render('vwAdmin/categories', {
-        layout: 'admin.hbs',
-        categoryActive: true,
-    });
-})
-
-router.get('/categories/add',checkAuthenticated,isAdmin, async function (req, res) {
-    
+router.get('/categories/add', async function (req, res) {
     res.render('vwAdmin/addCategory', {
         layout: 'admin.hbs',
         categoryActive: true,
     });
-})
-
-router.get('/is-category-available',checkAuthenticated,isAdmin, async function (req, res) {
-    const title = req.query.title;
-    const parent_id = req.query.parent_id;
-    const list = await categoryModel.findByParentID(parent_id);
-    let titles = []
-    for (c of list) {
-        titles.push(c.title.toLowerCase());
-    }
-
-    res.json(!titles.includes(title.toLowerCase()));
-})
+});
 
 router.post('/categories/add', async function (req, res) {
-    const new_category = req.body;
-    await categoryModel.add(new_category);
-    
-    res.redirect('/admin/categories/add');
-})
+    const newCategory = JSON.parse(decodeURI(req.query.newCategory));
+    await categoryModel.add(newCategory);
+    return res.json(true);
+});
 
-router.get('/categories/edit',checkAuthenticated,isAdmin, async function (req, res) {
+router.get(
+    '/categories/edit',
 
-    const category_id = req.query.id;
-    const categoryDetail = await categoryModel.findByID(category_id);
+    async function (req, res) {
+        const categoryId = req.query.categoryId;
 
-    if (categoryDetail === null) {
-        return res.redirect('/admin/categories');
+        const categoryDetail = await categoryModel.findByID(categoryId);
+
+        if (categoryDetail === null) {
+            return res.json({ result: false });
+        }
+
+        return res.json({ result: true, categoryDetail });
     }
-    
-
-    const isNotParent = categoryDetail.parent_title === 'Không' ? false : true;
-
-    res.render('vwAdmin/editCategory', {
-        layout: 'admin.hbs',
-        categoryActive: true,
-        categoryDetail,
-        isNotParent
-    });
-})
+);
 
 router.post('/categories/patch', async function (req, res) {
-
-    const updatedCategory ={
-        id: req.query.id,
-        title: req.body.title
-    }
-
+    const updatedCategory = JSON.parse(decodeURI(req.query.updatedCategory));
     await categoryModel.patch(updatedCategory);
 
-    res.redirect('/admin/categories');
-})
+    return res.json(true);
+});
 
 router.post('/categories/del', async function (req, res) {
-    
-    const catID = req.query.id;
-    const catParentID = req.query.parent_id;
+    const catID = req.query.catID;
+    const catParentID = req.query.catParentID;
 
-    await categoryModel.del(catID,catParentID);
+    await categoryModel.del(catID, catParentID);
 
-    res.redirect('/admin/categories');
-})
-
+    return res.json(true);
+});
 
 module.exports = router;
