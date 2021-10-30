@@ -47,16 +47,14 @@ router.post('/editors/patch', async function (req, res) {
 });
 
 router.post('/editors/del', async function (req, res) {
-    req.user.then(async (user) => {
-        const userID = JSON.parse(decodeURI(req.query.userID));
-        const newID = JSON.parse(decodeURI(req.query.newID));
-        await userModel.delEditorInApproval(userID, newID);
+    const userID = JSON.parse(decodeURI(req.query.userID));
+    const newID = JSON.parse(decodeURI(req.query.newID));
+    await userModel.delEditorInApproval(userID, newID);
 
-        await userModel.delEditorInAssignCat(userID);
+    await userModel.delEditorInAssignCat(userID);
 
-        await userModel.del(userID);
-        return res.json(true);
-    });
+    await userModel.del(userID);
+    return res.json(true);
 });
 
 router.get('/editors/assign', async function (req, res) {
