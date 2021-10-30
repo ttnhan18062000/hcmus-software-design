@@ -1,156 +1,60 @@
 const express = require('express');
 const moment = require('moment');
-const userModel = require('../models/user.model')
-const bcrypt = require('bcryptjs');
-const {checkAuthenticated,isAdmin} = require('../models/user.model');
-
+const userModel = require('../models/user.model');
 
 const router = express.Router();
 
-
-router.get('/users',checkAuthenticated,isAdmin, async function (req, res) {
-
+router.get('/users', async function (req, res) {
     const userList = await userModel.allUserByType(0);
 
-    const curTime = moment();
-
-    for (u of userList) {
-
-        const dueTime = moment(u.subcription_due_date);
-        const diffTime = dueTime.diff(curTime, 'seconds');
-
-        if (isNaN(diffTime) || diffTime < 0) {
-            u.account_type = "Thường";
-        }
-        else {
-            u.account_type = "Premium";
-        }
-    }
-
-
-    res.render('vwAdmin/users', {
-        layout: 'admin.hbs',
-        userMenuActive: true,
-        userActive: true,
-        userList
-    });
-})
-
-router.get('/users/add',checkAuthenticated,isAdmin, function (req, res) {
-
-    res.render('vwAdmin/addUser', {
-        layout: 'admin.hbs',
-        userMenuActive: true,
-        userActive: true
-    });
-})
+    return res.json({ userList });
+});
 
 router.post('/users/add', function (req, res) {
+    const user = JSON.parse(decodeURI(req.query.user));
 
-    const hash = bcrypt.hashSync(req.body.raw_password, 10);
+    userModel
+        .addUser(user)
+        .then(() => {
+            console.log('success');
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 
-    const user = {
-        user_name: req.body.user_name,
-        password: hash,
-        name: req.body.name,
-        email: req.body.email,
-        birthday: req.body.birthday,
-        user_type: 0,
-        is_active: true
-    }
+    return res.json(true);
+});
 
-    userModel.addUser(user).then(
-        () => {
-            console.log("success");
-        }
-    ).catch((err) => {
-        console.log(err);
-    }
-    );
-
-    res.redirect('/admin/users/add');
-})
-
-router.get('/is-username-available',checkAuthenticated,isAdmin, async function (req, res) {
-    const username = req.query.username;
-    const user = await userModel.findByUsername(username);
-    if (user === null) {
-        return res.json(true);
-    }
-
-    res.json(false);
-})
-
-router.get('/users/edit',checkAuthenticated,isAdmin, async function (req, res) {
-
-    const userDetail = await userModel.findByID(req.query.id);
+router.get('/users/edit', async function (req, res) {
+    const id = JSON.parse(decodeURI(req.query.id));
+    const userDetail = await userModel.findByID(id);
 
     if (userDetail === null) {
-        return res.redirect('/admin/users');
+        return res.json({ result: false });
     }
 
-    userDetail.birthday = moment(userDetail.birthday).format("YYYY-MM-DD");
-
-    const dueTime = moment(userDetail.subcription_due_date);
-
-    const curTime = moment();
-
-    const diffTime = dueTime.diff(curTime, 'seconds');
-
-    if (isNaN(diffTime) || diffTime < 0) {
-        userDetail.subcription_due_date = "Đã hết hạn";
-    }
-    else {
-        userDetail.subcription_due_date = dueTime.format("YYYY-MM-DD HH:mm:ss");
-    }
-
-    res.render('vwAdmin/editUser', {
-        layout: 'admin.hbs',
-        userMenuActive: true,
-        userActive: true,
-        userDetail
+    return res.json({
+        result: true,
+        userDetail,
     });
-})
+});
 
-router.post('/users/patch',async function (req, res) {
-    console.log("patch");
-    console.log(req.body);
-    let updatedUser = {};
-    if (req.body.newpass.length != 0) {
-        const hash = bcrypt.hashSync(req.body.newpass, 10);
-        updatedUser = {
-            id: req.query.id,
-            name: req.body.name,
-            email: req.body.email,
-            birthday: req.body.birthday,
-            password: hash,
-        }
-
-    }
-    else {
-        updatedUser = {
-            id: req.query.id,
-            name: req.body.name,
-            email: req.body.email,
-            birthday: req.body.birthday,
-        }
-    }
-
+router.post('/users/patch', async function (req, res) {
+    console.log('patch');
+    const updatedUser = JSON.parse(decodeURI(req.query.updatedUser));
     await userModel.patch(updatedUser);
 
-    res.redirect('/admin/users');
-})
+    return res.json(true);
+});
 
 router.post('/users/del', async function (req, res) {
-    const userID = req.query.id;
+    const userID = JSON.parse(decodeURI(req.query.userID));
     await userModel.del(userID);
-    res.redirect('/admin/users');
-})
+    return res.json(true);
+});
 
 router.post('/users/extendSubcription', async function (req, res) {
-
-    const userID = req.query.id;
-    const url = req.headers.referer || "/admin/users";
+    const userID = JSON.parse(decodeURI(req.query.userID));
 
     const user = await userModel.findByID(userID);
 
@@ -160,70 +64,60 @@ router.post('/users/extendSubcription', async function (req, res) {
 
     const diffTime = dueTime.diff(curTime, 'seconds');
 
-    let newDueTime = "";
+    let newDueTime = '';
     const day = 7;
 
     if (isNaN(diffTime) || diffTime < 0) {
         newDueTime = moment().add(day, 'days');
-    }
-    else {
+    } else {
         newDueTime = dueTime.add(day, 'days');
     }
 
     const extended = {
         id: userID,
-        subcription_due_date: newDueTime.format("YYYY-MM-DD HH:mm:ss")
-    }
+        subcription_due_date: newDueTime.format('YYYY-MM-DD HH:mm:ss'),
+    };
 
     await userModel.patch(extended);
 
-    res.redirect(url);
-})
+    return res.json(true);
+});
 
-router.get('/users/pending',checkAuthenticated,isAdmin, async function (req, res) {
-    
+router.get('/users/pending', async function (req, res) {
     const userList = await userModel.getPendingSub();
-    console.log(userList);
-    
-    res.render('vwAdmin/pending', {
-        layout: 'admin.hbs',
-        userMenuActive: true,
-        pending: true,
-        userList
-    });
+
+    return res.json({ userList });
 });
 router.post('/users/approve', async function (req, res) {
-    
-    //const userList = await userModel.getPendingSub();
-    console.log(req.body);
-    const userID = req.body.userID;      
+    const body = JSON.parse(decodeURI(req.query.body));
 
-    const dueTime = moment( req.body.subcription_due_date);
+    const userID = body.userID;
+
+    const dueTime = moment(body.subcription_due_date);
 
     const curTime = moment();
 
     const diffTime = dueTime.diff(curTime, 'seconds');
 
-    let newDueTime = "";
-    const day =  req.body.days_subscribe;
+    let newDueTime = '';
+    const day = body.days_subscribe;
 
     if (isNaN(diffTime) || diffTime < 0) {
         newDueTime = moment().add(day, 'days');
-    }
-    else {
+    } else {
         newDueTime = dueTime.add(day, 'days');
     }
 
     const extended = {
         id: userID,
-        subcription_due_date: newDueTime.format("YYYY-MM-DD HH:mm:ss")
-    }
+        subcription_due_date: newDueTime.format('YYYY-MM-DD HH:mm:ss'),
+    };
 
     await userModel.patch(extended);
 
-    await userModel.delPendingSubApproved(req.body.id);
-    
-    res.redirect('/admin/users/pending');
+    await userModel.delPendingSubApproved(body.id);
+
+    return res.json(true);
 });
 //-----------------------------------------------------------------------------------------------------------------------------------------
 
