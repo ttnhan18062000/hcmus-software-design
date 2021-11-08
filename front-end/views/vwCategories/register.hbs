@@ -123,11 +123,14 @@
         username: username,
         birthdate: birthdate
       })
-    }).then((res) => res.json())
+    }).then((res) => {
+        console.log(res);
+       return  res.json();})
     .then((data) => {
       console.log(data);
       if (data.username){
-        const url =  "http://localhost:3000/user/otp/" + data.username;
+          
+        const url =  "http://localhost:6060/user/otp/" + data.username;
         console.log(url);
         window.location.replace(url);
       }
