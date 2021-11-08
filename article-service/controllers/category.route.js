@@ -111,7 +111,7 @@ router.get('/categories/:id', async function(req, res) {
     list.sort(compareArticlePremium);
 
     //console.log(total, list)
-    res.render('vwCategories/byCat', {
+    return res.json({
         category,
         articles: list,
         empty: list.length === 0,
@@ -168,7 +168,7 @@ router.get('/search', async function(req, res) {
     list.sort(compareArticlePremium);
 
     //console.log(res.locals.lcMainCategories[0].subCat);
-    res.render('vwCategories/search', {
+    return res.json({
         keyword,
         articles: list,
         empty: list.length === 0,
@@ -201,7 +201,7 @@ router.get('/articles/:id', async(req, res) => {
     await articleModel.addView(article.id, article.view_number + 1);
 
     article.numOfCmt = article.comments.length;
-    res.render('vwCategories/details', {
+    return res.json({
         article,
         randomArticles,
         currentUser,
@@ -222,7 +222,7 @@ router.get('/', async function(req, res) {
     const listMostRecent = await articleModel.getMostRecent();
     const listTop10Cats = await articleModel.getTop10Cats();
     const listArticleOfTop10Cats = await articleModel.getArticleOfTop10Cats(listTop10Cats);
-    res.render('vwCategories/index', {
+    return res.json({
         top1Week,
         listTopWeek,
         listTopViews,
