@@ -8,7 +8,7 @@ let transporter = nodemailer.createTransport({
     },
 });
 
-const sendMail =  (recieveAddress, recieverName, subject, message, otp) => {
+const sendMail = (recieveAddress, recieverName, subject, message, otp) => {
     let mailOptions = {
         from: 'botmailertest@gmail.com',
         to: recieveAddress,
@@ -34,7 +34,6 @@ const sendMail =  (recieveAddress, recieverName, subject, message, otp) => {
             console.log('Email sent: ' + info);
         }
     });
-    
 };
 
 module.exports = sendMail;
